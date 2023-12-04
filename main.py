@@ -19,7 +19,7 @@ def set_seed(args):
 def main(args):
     env = gym.make(args.env)
     model = SimpleModel(env.action_space.n,4)
-    optimizer= torch.optim.RMSprop(model.parameters(), lr=args.lr)
+    optimizer= torch.optim.Adam(model.parameters(), lr=args.lr)
     train(model, optimizer, args, env)
     logger.info('******************** Train Finished ********************')
 
@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
 
     # training
-    parser.add_argument("--epochs", type=int, default=2000)
-    parser.add_argument("--lr", type=float, default=3e-4)
+    parser.add_argument("--epochs", type=int, default=1000)
+    parser.add_argument("--lr", type=float, default=1e-3)
     args = parser.parse_args()
 
     args.device = torch.device("cpu")

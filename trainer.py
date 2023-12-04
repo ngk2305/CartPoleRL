@@ -37,7 +37,11 @@ def play(model,args,env,epsilon,epoch):
     observation_replay=[]
     reward_replay=[]
     action_replay=[]
+    count=0
     while not done:
+        count+=1
+        if count>500:
+            print(count)
         with torch.no_grad():
             model.eval()
             observation_tensor=torch.tensor(observation)
@@ -57,11 +61,15 @@ def play(model,args,env,epsilon,epoch):
     return observation_replay , action_replay, reward_replay , cumulative_reward
 
 def train(model,optimizer,args,env):
+    max=0
     for epoch in range(1,args.epochs+1):
         episode = play(model,args,env,args.epsilon,epoch)
+        if episode[3]>max:
+            max= episode[3]
         learn(model,optimizer,episode,env)
-        print("The original string is : {}".format(str(epoch)))
+        print(f"Epoch {epoch} has reward of {episode[3]}")
     test(model,env,args)
+    print(max)
 
 def test(model,env,args):
     print('Running Test...')
