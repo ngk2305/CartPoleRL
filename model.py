@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 class SimpleModel(nn.Module):
     def __init__(self,action_size,state_size):
         super(SimpleModel, self).__init__()

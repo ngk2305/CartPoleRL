@@ -2,6 +2,7 @@ import torch
 from utils import return_replay
 import torch.nn.functional as F
 import random
+import torch.nn as nn
 def learn(model,optimizer,episode,env):
     observation, dummy = env.reset()
     observation_replay, action_replay, reward_replay, total_reward = episode
@@ -11,14 +12,19 @@ def learn(model,optimizer,episode,env):
         observation_tensor = torch.tensor(observation_replay[i])
 
         pred = model(observation_tensor)
-        print(pred)
+        #print(pred)
 
-        learn_result = pred
+
+        learn_result = torch.tensor([pred[0],pred[1]])
+
         learn_result[action_replay[i]]=return_list[i]
-        print(learn_result)
+        #print(learn_result)
 
         loss = F.l1_loss(pred, learn_result)
-        print(loss)
+
+
+
+        #print(loss)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -39,8 +45,8 @@ def play(model,args,env,epsilon,epoch):
             if random.random()>(epsilon*(1-epoch/args.epochs/args.epsilon_decay_epoch)):
                 action = int(torch.argmax(model(observation_tensor)))
             else:
-                action = int(torch.argmin(model(observation_tensor)))
-                print('non-greedy chosen')
+                action = env.action_space.sample()
+
             observation_replay.append(observation)
             action_replay.append(action)
 
@@ -54,7 +60,8 @@ def train(model,optimizer,args,env):
     for epoch in range(1,args.epochs+1):
         episode = play(model,args,env,args.epsilon,epoch)
         learn(model,optimizer,episode,env)
-    #test(model,env,args)
+        print("The original string is : {}".format(str(epoch)))
+    test(model,env,args)
 
 def test(model,env,args):
     print('Running Test...')
